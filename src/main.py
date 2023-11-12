@@ -17,22 +17,22 @@ env = UnityEnvironment(file_name=app_path)
 params = {
     'STATE_SIZE': 8*3,
     'ACTION_SIZE': 2,
-    'SEED': 375,
+    'SEED': 8675309,
     'LR_ACTOR': 1e-4,
     'LR_CRITIC': 1e-3,
     'BUFFER_SIZE': int(1e5),
-    'TRAIN_BATCH_SIZE': 256,
-    'DISCOUNT_FACTOR': 0.9,
+    'TRAIN_BATCH_SIZE': 512,
+    'DISCOUNT_FACTOR': 0.99,
     'TAU': 1e-3,
     'WEIGHT_DECAY': 0.0001,
     'UPDATE_ITERATION': 10,
     'NUM_UPDATES_PER_INTERVAL': 10,
-    'NOISE_DECAY': .9999,
+    'NOISE_DECAY': 1,
     'NUM_EPISODES': 2500,
     'MAX_TIMESTEPS': 50,
     'THRESHOLD': 2.0,
 }
-logger.info('PARAMTERS:\n%s', json.dumps(params, indent=4))
+logger.info('PARAMETERS:\n%s', json.dumps(params, indent=4))
 
 try:
     agent1, agent2 = create_agents(
@@ -79,7 +79,7 @@ try:
         avg_scores1.append(avg_score1)
         avg_scores2.append(avg_score2)
 
-        score_str = 'Episode: {}\tAvg Scores: [{:.2f}, {:.2f}] --- Scores: [{:.2f}, {:.2f}]'
+        score_str = 'Episode: {}\tAvg Scores: [{:.2f}, {:.2f}]\tScores: [{:.2f}, {:.2f}]'
         out_s = score_str.format(i_episode, avg_score1, avg_score2, score1, score2)
 
         logger.info(out_s)
@@ -114,7 +114,7 @@ plt.show()
 # plot the scores
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.plot(np.arange(len(scores1)), scores1)
+plt.plot(np.arange(len(scores2)), scores2)
 plt.plot(np.arange(len(avg_scores2)), avg_scores2)
 plt.ylabel('Avg Score')
 plt.xlabel('Episode #')
