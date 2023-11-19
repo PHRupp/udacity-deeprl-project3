@@ -28,8 +28,8 @@ params = {
     'UPDATE_ITERATION': 10,
     'NUM_UPDATES_PER_INTERVAL': 10,
     'NOISE_DECAY': 1,
-    'NUM_EPISODES': 2500,
-    'MAX_TIMESTEPS': 50,
+    'NUM_EPISODES': 20000,
+    'MAX_TIMESTEPS': 999,
     'THRESHOLD': 2.0,
 }
 logger.info('PARAMETERS:\n%s', json.dumps(params, indent=4))

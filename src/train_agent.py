@@ -109,6 +109,9 @@ def train_episode(
         if done1 or done2:
             break
 
+    agent1.reset()
+    agent2.reset()
+
     return score1, score2
 
 
