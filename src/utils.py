@@ -22,24 +22,6 @@ logger.addHandler(FileOutputHandler)
 logger.propagate = False
 
 
-def soft_update(current_model, best_model, tau):
-    """Soft update model parameters.
-    θ_target = τ*θ_local + (1 - τ)*θ_target
-
-    :param current_model: weights copied from
-    :param best_model: weights copied to
-    """
-
-    # Update the best network
-    for best_param, current_param in zip(
-            best_model.parameters(),
-            current_model.parameters(),
-    ):
-        current_portion_param = tau * current_param.data
-        best_portion_param = (1.0 - tau) * best_param.data
-        best_param.data.copy_(current_portion_param + best_portion_param)
-
-
 def save_plots(scores1, avg_scores1, scores2, avg_scores2, file="models\\agents.png"):
 
     try:
