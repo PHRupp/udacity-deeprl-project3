@@ -3,11 +3,10 @@ import json
 import traceback as tb
 from os.path import join
 
-import matplotlib.pyplot as plt
 from unityagents import UnityEnvironment
 
 from train_agent import *
-from utils import logger
+from utils import logger, save_plots
 
 
 projects_dir = "C:\\Users\\pathr\\PycharmProjects\\"
@@ -30,7 +29,8 @@ params = {
     'NOISE_DECAY': 1,
     'NUM_EPISODES': 20000,
     'MAX_TIMESTEPS': 999,
-    'THRESHOLD': 2.0,
+    'THRESHOLD': 0.5,
+    'PLOT_ITER': 100,
 }
 logger.info('PARAMETERS:\n%s', json.dumps(params, indent=4))
 
@@ -85,6 +85,9 @@ try:
         logger.info(out_s)
         print(out_s)
 
+        if (i_episode % params['PLOT_ITER']) == 0:
+            save_plots(scores1, avg_scores1, scores2, avg_scores2)
+
         # If the avg score of latest window is above threshold, then stop training and save model
         if np.max([avg_score1, avg_score2]) >= params['THRESHOLD']:
             solved_str = '\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f} | {:.2f}'
@@ -102,24 +105,7 @@ except KeyboardInterrupt:
     logger.critical(tb.format_exc())
 
 # plot the scores
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.plot(np.arange(len(scores1)), scores1)
-plt.plot(np.arange(len(avg_scores1)), avg_scores1)
-plt.ylabel('Score')
-plt.xlabel('Episode #')
-plt.title('Agent 1')
-plt.show()
-
-# plot the scores
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.plot(np.arange(len(scores2)), scores2)
-plt.plot(np.arange(len(avg_scores2)), avg_scores2)
-plt.ylabel('Avg Score')
-plt.xlabel('Episode #')
-plt.title('Agent 2')
-plt.show()
+save_plots(scores1, avg_scores1, scores2, avg_scores2, file="models\\final_agents.png")
 
 logger.info('Exiting...')
 env.close()
