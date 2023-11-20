@@ -9,16 +9,14 @@ import torch
 class ReplayBuffer:
     """Buffer to store agent experiences as tuples."""
 
-    def __init__(self, action_size: int, buffer_size: int, batch_size: int, seed: int, device):
+    def __init__(self, buffer_size: int, batch_size: int, seed: int, device):
         """ Initialize the Replay buffer
 
-        :param action_size: (int) number of dimensions for the action space
         :param buffer_size: (int) size of the entire buffer
         :param batch_size: (int) size of the batch used for training
         :param seed: (int) random seed
         :param device: (int) torch device
         """
-        self.action_size = action_size
         self.replay_buffer = deque(maxlen=buffer_size)
         self.batch_size = batch_size
         self.experience = namedtuple(

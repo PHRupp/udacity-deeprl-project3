@@ -10,6 +10,7 @@ from base_agent import BaseAgent
 from networks import ActorNetwork, CriticNetwork
 from noise import OUNoise
 from replay_buffer import ReplayBuffer
+from utils import soft_update
 
 
 class DDPGAgent(BaseAgent):
@@ -128,6 +129,7 @@ class DDPGAgent(BaseAgent):
             # Reduce the noise
             self.noise.decay_noise_params(self.noise_iteration)
             self.noise_iteration += 1
+            self.noise.reset()
 
     def act(self, state, add_noise: bool = True):
         """Returns the action selected
@@ -198,25 +200,5 @@ class DDPGAgent(BaseAgent):
         self.soft_update_all()
 
     def soft_update_all(self):
-        self.soft_update(self.critic_model_current, self.critic_model_best)
-        self.soft_update(self.actor_model_current, self.actor_model_best)
-
-    def soft_update(self, current_model, best_model):
-        """Soft update model parameters.
-        θ_target = τ*θ_local + (1 - τ)*θ_target
-
-        :param current_model: weights copied from
-        :param best_model: weights copied to
-        """
-
-        # Update the best network
-        for best_param, current_param in zip(
-            best_model.parameters(),
-            current_model.parameters(),
-        ):
-            current_portion_param = self.TAU * current_param.data
-            best_portion_param = (1.0 - self.TAU) * best_param.data
-            best_param.data.copy_(current_portion_param + best_portion_param)
-
-    def reset(self):
-        self.noise.reset()
+        soft_update(self.critic_model_current, self.critic_model_best, self.TAU)
+        soft_update(self.actor_model_current, self.actor_model_best, self.TAU)

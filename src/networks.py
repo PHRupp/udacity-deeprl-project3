@@ -75,10 +75,10 @@ class CriticNetwork(nn.Module):
         """
         super(CriticNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
-        #self.fc1 = nn.Linear(state_size*2, layers[0])
-        #self.fc2 = nn.Linear(layers[0] + action_size*2, layers[1])
-        self.fc1 = nn.Linear(state_size, layers[0])
-        self.fc2 = nn.Linear(layers[0] + action_size, layers[1])
+        self.fc1 = nn.Linear(state_size*2, layers[0])
+        self.fc2 = nn.Linear(layers[0] + action_size*2, layers[1])
+        #self.fc1 = nn.Linear(state_size, layers[0])
+        #self.fc2 = nn.Linear(layers[0] + action_size, layers[1])
         #self.fc3 = nn.Linear(layers[1], layers[2])
         #self.fc4 = nn.Linear(layers[2], 1)
         self.fc3 = nn.Linear(layers[1], 1)
@@ -91,17 +91,17 @@ class CriticNetwork(nn.Module):
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
         #self.fc4.weight.data.uniform_(-3e-3, 3e-3)
 
-    def forward(self, s1, a1): #s2, a1, a2):
+    def forward(self, s1, s2, a1, a2):
         """ Critic Network that calculates state-value to action pairs
-        :param s1: Iterable[float] represents state
-        :param: a1: Iterable[float] represents actions
+        :param sn: Iterable[float] represents state of nth agent
+        :param: an: Iterable[float] represents actions of nth agent
         :return: ...: Iterable[int] ...
         """
-        #x = torch.cat((s1, s2), dim=1)
-        x = s1
+        x = torch.cat((s1, s2), dim=1)
+        #x = s1
         x = F.relu(self.fc1(x))
-        #x = torch.cat((x, a1, a2), dim=1)
-        x = torch.cat((x, a1), dim=1)
+        x = torch.cat((x, a1, a2), dim=1)
+        #x = torch.cat((x, a1), dim=1)
         x = F.relu(self.fc2(x))
         #x = F.relu(self.fc3(x))
         x = self.fc3(x)

@@ -1,6 +1,8 @@
 
 from typing import Tuple
 
+import numpy as np
+
 from maddpg_agent import MADDDPGAgent
 from replay_buffer import ReplayBuffer
 from utils import logger
@@ -12,11 +14,11 @@ def run_episode(
     maddpg: MADDDPGAgent,
     replay_buffer: ReplayBuffer,
     max_timesteps: int = 1000,
+    random: bool = False,
     brain: str = 'TennisBrain',
 ) -> Tuple[float, float]:
 
     state_brain = env.reset()
-    maddpg.reset()
     state1, state2 = state_brain[brain].__dict__['vector_observations']
     experiences = []
     score1, score2 = (0, 0)
@@ -24,7 +26,11 @@ def run_episode(
 
     # loop through all time steps within episode
     for t in range(max_timesteps):
-        action1, action2 = maddpg.act(state1, state2, add_noise=True)
+
+        if random:
+            action1, action2 = (np.random.uniform(-1, 1, 2), np.random.uniform(-1, 1, 2))
+        else:
+            action1, action2 = maddpg.act(state1, state2, add_noise=True)
 
         state_brain = env.step(vector_action=[action1, action2])
         next_state1, next_state2 = state_brain[brain].__dict__['vector_observations']
@@ -56,7 +62,7 @@ def run_episode(
         # Done reached
         if done1 or done2:
             break
-    """
+
     for s1, s2, a1, a2, r1, r2, ns1, ns2, d1, d2 in experiences:
         replay_buffer.add_experience(s1, s2, a1, a2, r1, r2, ns1, ns2, d1, d2)
     """
@@ -67,5 +73,5 @@ def run_episode(
         G_t1 = r1 + maddpg.agent1.discount_factor * G_t1
         G_t2 = r2 + maddpg.agent2.discount_factor * G_t2
         replay_buffer.add_experience(s1, s2, a1, a2, G_t1, G_t2, ns1, ns2, d1, d2)
-
+    """
     return score1, score2

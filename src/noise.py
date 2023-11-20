@@ -35,5 +35,5 @@ class OUNoise:
         x = self.state
         rand_vals = 2 * np.random.rand(len(x)) - 1
         dx = self.theta * (self.mu - x) + self.sigma * rand_vals
-        self.state = x + dx
+        self.state += dx
         return self.state

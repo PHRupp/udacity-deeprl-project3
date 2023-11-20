@@ -92,18 +92,16 @@ class MADDDPGAgent:
                 self.model_update(s1, s2, a1, a2, r1, r2, ns1, ns2, d1, d2)
 
             # Reduce the noise
-            self.agent1.noise.decay_noise_params(self.agent1.noise_iteration)
-            self.agent2.noise.decay_noise_params(self.agent2.noise_iteration)
+            self.agent1.noise.decay_noise_params(self.noise_iteration)
+            self.agent2.noise.decay_noise_params(self.noise_iteration)
             self.noise_iteration += 1
+            self.agent1.noise.reset()
+            self.agent2.noise.reset()
             logger.debug("MODEL UPDATE!")
         else:
             logger.warn('NOT ENOUGH BATCH SIZE!')
 
         return
-
-    def reset(self):
-        self.agent1.reset()
-        self.agent2.reset()
 
     def act(self, state1, state2, add_noise: bool = True):
         """Returns the action selected
@@ -119,15 +117,15 @@ class MADDDPGAgent:
     def model_update_agent1(self, s1, s2, a1, a2, r1, ns1, ns2, d1, an1, an2, ap1, ap2):
 
         # max predicted Q-vals from best model
-        #Q_best_next = self.agent1.critic_model_best(ns1, ns2, an1, an2)
-        Q_best_next = self.agent1.critic_model_best(ns1, an1)
+        Q_best_next = self.agent1.critic_model_best(ns1, ns2, an1, an2)
+        #Q_best_next = self.agent1.critic_model_best(ns1, an1)
 
         # Q-best-vals for current states
         Q_best = r1 + (self.agent1.discount_factor * Q_best_next * (1 - d1))
 
         # expected Q-vals from current model
-        #Q_expected = self.agent1.critic_model_current(s1, s2, a1, a2)
-        Q_expected = self.agent1.critic_model_current(s1, a1)
+        Q_expected = self.agent1.critic_model_current(s1, s2, a1, a2)
+        #Q_expected = self.agent1.critic_model_current(s1, a1)
 
         # get loss using mean squared error
         critic_loss = F.mse_loss(Q_expected, Q_best)
@@ -139,8 +137,8 @@ class MADDDPGAgent:
         self.agent1.critic_optimizer.step()
 
         # Compute actor loss
-        #actor_loss = -self.agent1.critic_model_current(s1, s2, ap1, ap2).mean()
-        actor_loss = -self.agent1.critic_model_current(s1, ap1).mean()
+        actor_loss = -self.agent1.critic_model_current(s1, s2, ap1, ap2).mean()
+        #actor_loss = -self.agent1.critic_model_current(s1, ap1).mean()
 
         # Minimize the loss for the actor
         self.agent1.actor_optimizer.zero_grad()
@@ -153,15 +151,15 @@ class MADDDPGAgent:
     def model_update_agent2(self, s1, s2, a1, a2, r2, ns1, ns2, d2, an1, an2, ap1, ap2):
 
         # max predicted Q-vals from best model
-        #Q_best_next = self.agent2.critic_model_best(ns1, ns2, an1, an2)
-        Q_best_next = self.agent2.critic_model_best(ns2, an2)
+        Q_best_next = self.agent2.critic_model_best(ns1, ns2, an1, an2)
+        #Q_best_next = self.agent2.critic_model_best(ns2, an2)
 
         # Q-best-vals for current states
         Q_best = r2 + (self.agent2.discount_factor * Q_best_next * (1 - d2))
 
         # expected Q-vals from current model
-        #Q_expected = self.agent2.critic_model_current(s1, s2, a1, a2)
-        Q_expected = self.agent2.critic_model_current(s2, a2)
+        Q_expected = self.agent2.critic_model_current(s1, s2, a1, a2)
+        #Q_expected = self.agent2.critic_model_current(s2, a2)
 
         # get loss using mean squared error
         critic_loss = F.mse_loss(Q_expected, Q_best)
@@ -173,8 +171,8 @@ class MADDDPGAgent:
         self.agent2.critic_optimizer.step()
 
         # Compute actor loss
-        #actor_loss = -self.agent2.critic_model_current(s1, s2, ap1, ap2).mean()
-        actor_loss = -self.agent2.critic_model_current(s2, ap2).mean()
+        actor_loss = -self.agent2.critic_model_current(s1, s2, ap1, ap2).mean()
+        #actor_loss = -self.agent2.critic_model_current(s2, ap2).mean()
 
         # Minimize the loss for the actor
         self.agent2.actor_optimizer.zero_grad()
